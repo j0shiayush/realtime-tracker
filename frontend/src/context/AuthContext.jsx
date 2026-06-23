@@ -9,7 +9,7 @@ import {
 } from "react";
 import { disconnectActiveSocket } from "../utils/socketManager";
 
-const API_URL = "http://localhost:4500";
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4500";
 const TOKEN_KEY = "token";
 const USERNAME_KEY = "username";
 const FULLNAME_KEY = "fullName";

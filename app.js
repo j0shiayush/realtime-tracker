@@ -13,8 +13,18 @@ const User = require("./models/User"); // Import your User model
 const app = express();
 const server = http.createServer(app);
 
+// ==========================================
+//        CORS & DEPLOYMENT CONFIG
+// ==========================================
+// Allow requests from your live Vercel frontend OR local development
+const allowedOrigins = [
+  process.env.FRONTEND_URL, 
+  "http://localhost:5173", 
+  "http://localhost:5174"
+].filter(Boolean); // filter(Boolean) removes undefined values if FRONTEND_URL isn't set yet
+
 // Middleware to parse JSON bodies and handle CORS for standard API requests
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174"] }));
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -43,7 +53,7 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Username already exists. Try another." });
     }
 
-    // Hash the password (scramble it so it is secure in the database)
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save the new user to MongoDB
@@ -72,9 +82,8 @@ app.post("/login", async (req, res) => {
     }
 
     // Check if the password matches the hashed version
-    // Added safety check in case a GitHub-only user tries to log in via standard form
     if (!user.password) {
-      return res.status(400).json({ error: "Please log in using GitHub." });
+      return res.status(400).json({ error: "Please log in using GitHub or Google." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -94,7 +103,7 @@ app.post("/login", async (req, res) => {
       token,
       username: user.username,
       fullName: user.fullName,
-      profilePicture: user.profilePicture // Ensure standard users get their avatar (even if it's default)
+      profilePicture: user.profilePicture
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -138,9 +147,9 @@ app.post("/auth/github", async (req, res) => {
     if (!user) {
       // Create a new user if they don't exist
       user = await User.create({
-        username: githubUser.login, // GitHub username
-        fullName: githubUser.name || githubUser.login, // Real name
-        profilePicture: githubUser.avatar_url, // Profile picture URL
+        username: githubUser.login, 
+        fullName: githubUser.name || githubUser.login, 
+        profilePicture: githubUser.avatar_url, 
         githubId: githubUser.id.toString(),
       });
     }
@@ -181,7 +190,8 @@ app.post("/auth/google", async (req, res) => {
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
         code,
         grant_type: "authorization_code",
-        redirect_uri: "http://localhost:5173" // Must match exact URI in Google Console
+        // Dynamically use the live frontend URL, or fallback to localhost
+        redirect_uri: process.env.FRONTEND_URL 
       })
     });
     
@@ -200,7 +210,7 @@ app.post("/auth/google", async (req, res) => {
     let user = await User.findOne({ googleId: googleUser.id });
     
     if (!user) {
-      // Create a new user if they don't exist. Google emails are unique, so we use the prefix as username
+      // Create a new user if they don't exist
       const baseUsername = googleUser.email.split("@")[0];
       user = await User.create({
         username: baseUsername, 
@@ -234,7 +244,7 @@ app.post("/auth/google", async (req, res) => {
 
 const io = socketio(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
@@ -285,6 +295,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(4500, () => {
-  console.log("Socket server running on http://localhost:4500");
+// Use the dynamic PORT assigned by Render, or 4500 locally
+const PORT = process.env.PORT || 4500;
+server.listen(PORT, () => {
+  console.log(`Socket server running on port ${PORT}`);
 });
