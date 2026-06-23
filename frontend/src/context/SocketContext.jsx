@@ -14,7 +14,9 @@ import {
   setActiveSocket,
 } from "../utils/socketManager";
 
-const SOCKET_URL = "http://localhost:4500";
+// --- DYNAMIC URL UPDATE ---
+// Uses your Render backend URL on Vercel, and falls back to localhost when developing on your computer
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4500";
 
 const SocketContext = createContext(null);
 
@@ -73,7 +75,12 @@ export function SocketProvider({ children }) {
       return;
     }
 
-    const socket = io(SOCKET_URL);
+    // --- TRANSPORT CONFIG UPDATE ---
+    // Explicitly define transports to prevent cloud connection drops
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+    });
+    
     socketRef.current = socket;
     setActiveSocket(socket);
 
