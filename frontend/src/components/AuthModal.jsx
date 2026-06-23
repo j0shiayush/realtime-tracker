@@ -216,7 +216,7 @@ export default function AuthModal() {
   type="button"
   onClick={() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const redirectUri = "http://localhost:5173";
+    const redirectUri = window.location.origin;
     const scope = "email profile";
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=google`;
   }}
