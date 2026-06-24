@@ -7,7 +7,8 @@
 ![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-![Realtime Tracker Banner](./docs/banner.png) 
+<img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/b6423920-9da4-4d9c-ae95-7b9c33183bad" />
+
 
 ## 📖 Overview
 
@@ -64,15 +65,18 @@ The platform features an enterprise-grade authentication system, seamlessly blen
 ## 📸 Visual Tour
 
 ### 1. Secure Authentication Gateway
-![Authentication Modal](./docs/auth-screen.png)
+<img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/6540f99a-02a8-4a36-bc11-7809ea36e0cb" />
+
 *Features local JWT login alongside OAuth 2.0 integration for seamless onboarding.*
 
 ### 2. Live Tracking Dashboard
-![Main Tracking Dashboard](./docs/main-dashboard.png)
+<img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/1595fc20-e993-459f-8aee-ebddbeb14a39" />
+
 *Real-time bi-directional coordinate syncing via WebSockets with dynamic user presence.*
 
 ### 3. Active Session Management
-![Active Users List](./docs/active-users.png)
+<img width="1920" height="922" alt="image" src="https://github.com/user-attachments/assets/c5561a79-b610-4e41-9195-ff5d315a6c2d" />
+
 *Live active user roster pulling dynamic profile pictures from GitHub/Google integrations.*
 
 ---
