@@ -1,101 +1,71 @@
-import { Fragment, useEffect, useMemo } from "react";
-import {
-  MapContainer,
-  Marker,
-  Polyline,
-  TileLayer,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import { useSocket } from "../context/SocketContext";
-import { getUserColor } from "../utils/userColor";
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useSocket } from '../context/SocketContext'; // Adjust path if needed
 
-const DARK_TILE_URL =
-  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+// Fix for default Leaflet icon bugs in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
-function createUserIcon(color, isSelf) {
+// Custom Premium Marker using Tailwind CSS
+const createCustomMarker = (username) => {
   return L.divIcon({
-    className: "",
-    html: `<div style="
-      width: ${isSelf ? 18 : 14}px;
-      height: ${isSelf ? 18 : 14}px;
-      background: ${color};
-      border: 2px solid rgba(255,255,255,0.9);
-      border-radius: 50%;
-      box-shadow: 0 0 12px ${color}, 0 0 24px ${color}66;
-    "></div>`,
-    iconSize: [isSelf ? 18 : 14, isSelf ? 18 : 14],
-    iconAnchor: [isSelf ? 9 : 7, isSelf ? 9 : 7],
+    className: 'custom-icon',
+    html: `
+      <div class="flex flex-col items-center justify-center -mt-8">
+        <span class="bg-slate-900/90 backdrop-blur-sm text-cyan-400 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md mb-1 border border-cyan-500/30 shadow-lg whitespace-nowrap">
+          ${username}
+        </span>
+        <div class="h-4 w-4 bg-cyan-500 rounded-full border-2 border-white shadow-[0_0_15px_rgba(6,182,212,0.6)] animate-pulse"></div>
+      </div>
+    `,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
   });
-}
+};
 
-function MapViewController({ users, socketId }) {
-  const map = useMap();
-  const self = socketId ? users[socketId] : null;
+export default function TrackerMap() {
+  const { activeUsers } = useSocket();
 
-  useEffect(() => {
-    if (!self?.currentLocation) return;
-    map.setView(
-      [self.currentLocation.lat, self.currentLocation.lng],
-      map.getZoom() || 16,
-      { animate: true }
-    );
-  }, [self?.currentLocation?.lat, self?.currentLocation?.lng, map, socketId]);
-
-  return null;
-}
-
-export default function TrackingMap() {
-  const { activeUsers, users, socketId } = useSocket();
-
-  const defaultCenter = useMemo(() => {
-    const self = socketId ? users[socketId] : null;
-    if (self?.currentLocation) {
-      return [self.currentLocation.lat, self.currentLocation.lng];
-    }
-    return [20, 0];
-  }, [socketId, users]);
+  // Center of India (Default fallback location)
+  const defaultCenter = [20.5937, 78.9629];
 
   return (
-    <MapContainer
-      center={defaultCenter}
-      zoom={16}
-      zoomControl={false}
-      className="absolute inset-0 z-0"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        url={DARK_TILE_URL}
-      />
-      <MapViewController users={users} socketId={socketId} />
-      {activeUsers.map((user) => {
-        if (!user.currentLocation) return null;
-        const color = getUserColor(user.id);
-        const position = [user.currentLocation.lat, user.currentLocation.lng];
-        const isSelf = user.id === socketId;
+    <div className="h-full w-full rounded-xl overflow-hidden border border-white/10 shadow-2xl z-0 relative">
+      <MapContainer 
+        center={defaultCenter} 
+        zoom={5} 
+        className="h-full w-full"
+        zoomControl={false} // Hides default zoom to keep UI clean
+      >
+{/* STADIA MAPS: ALIDADE SMOOTH DARK (Premium Google Maps feel) */}
+<TileLayer
+  attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+  url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+  maxZoom={20}
+/>
 
-        return (
-          <Fragment key={user.id}>
-            {user.pathHistory.length > 1 && (
-              <Polyline
-                positions={user.pathHistory}
-                pathOptions={{
-                  color,
-                  weight: 3,
-                  opacity: user.status === "connected" ? 0.85 : 0.35,
-                  lineCap: "round",
-                  lineJoin: "round",
-                }}
-              />
-            )}
-            <Marker
-              position={position}
-              icon={createUserIcon(color, isSelf)}
-              opacity={user.status === "connected" ? 1 : 0.5}
-            />
-          </Fragment>
-        );
-      })}
-    </MapContainer>
+        {/* Map over live Socket.io users */}
+        {activeUsers.map((user) => (
+          <Marker 
+            key={user.id} 
+            position={[user.currentLocation.lat, user.currentLocation.lng]}
+            icon={createCustomMarker(user.username)}
+          >
+            <Popup className="bg-slate-900 border border-white/10 rounded-lg">
+              <div className="text-slate-200 p-1">
+                <p className="font-semibold text-cyan-400">{user.fullName}</p>
+                <p className="text-xs text-slate-400">Live Tracking Active</p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   );
 }

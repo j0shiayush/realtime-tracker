@@ -16,3 +16,9 @@ body,
   background: #0f172a;
   font-family: inherit;
 }
+
+/* Fix Leaflet custom icon background */
+.custom-icon {
+  background: none !important;
+  border: none !important;
+}
