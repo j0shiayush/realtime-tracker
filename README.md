@@ -7,7 +7,8 @@
 ![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-<img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/b6423920-9da4-4d9c-ae95-7b9c33183bad" />
+<img width="1920" height="921" alt="image" src="https://github.com/user-attachments/assets/6081dbc2-5426-4295-90d0-0b69fb63207f" />
+
 
 
 ## 📖 Overview
