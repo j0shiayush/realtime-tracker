@@ -22,3 +22,5 @@ body,
   background: none !important;
   border: none !important;
 }
+
+/* Inverts the bright map to a dark mode while keeping colors accurate */

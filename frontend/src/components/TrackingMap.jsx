@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSocket } from '../context/SocketContext'; // Adjust path if needed
@@ -29,10 +29,30 @@ const createCustomMarker = (username) => {
   });
 };
 
-export default function TrackerMap() {
-  const { activeUsers } = useSocket();
+// This component invisibly controls the Leaflet camera
+function MapUpdater({ activeUsers, socketId }) {
+  const map = useMap();
+  const [hasInitialZoom, setHasInitialZoom] = useState(false);
 
-  // Center of India (Default fallback location)
+  useEffect(() => {
+    // Find YOUR specific user object from the socket list
+    const localUser = activeUsers.find(u => u.id === socketId);
+
+    // If we have your location and haven't zoomed yet, trigger the fly animation
+    if (localUser && !hasInitialZoom) {
+      map.flyTo([localUser.currentLocation.lat, localUser.currentLocation.lng], 16, {
+        animate: true,
+        duration: 2 // 2-second smooth zoom effect
+      });
+      setHasInitialZoom(true);
+    }
+  }, [activeUsers, socketId, map, hasInitialZoom]);
+
+  return null;
+}
+
+export default function TrackerMap() {
+  const { activeUsers, socketId } = useSocket(); // Ensure socketId is destructured here
   const defaultCenter = [20.5937, 78.9629];
 
   return (
@@ -40,12 +60,14 @@ export default function TrackerMap() {
       <MapContainer 
         center={defaultCenter} 
         zoom={5} 
-        className="h-full w-full"
-        zoomControl={false} // Hides default zoom to keep UI clean
+        className="h-full w-full bg-slate-900"
+        zoomControl={false} 
       >
-{/* STADIA MAPS: ALIDADE SMOOTH DARK (Premium Google Maps feel) */}
+        {/* ADD THE AUTO-ZOOM CAMERA HERE */}
+        <MapUpdater activeUsers={activeUsers} socketId={socketId} />
+{/* RAW OPENSTREETMAP: Maximum POI Data */}
 <TileLayer
-  attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+  attribution='&copy; Stadia Maps'
   url={`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${import.meta.env.VITE_STADIA_KEY}`}
   maxZoom={20}
 />
