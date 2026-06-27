@@ -71,12 +71,14 @@ The platform features an enterprise-grade authentication system, seamlessly blen
 *Features local JWT login alongside OAuth 2.0 integration for seamless onboarding.*
 
 ### 2. Live Tracking Dashboard
-<img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/1595fc20-e993-459f-8aee-ebddbeb14a39" />
+<img width="1918" height="921" alt="image" src="https://github.com/user-attachments/assets/f0c92c2b-0eed-4a97-acb1-9e50507c275b" />
+
 
 *Real-time bi-directional coordinate syncing via WebSockets with dynamic user presence.*
 
 ### 3. Active Session Management
-<img width="1920" height="922" alt="image" src="https://github.com/user-attachments/assets/c5561a79-b610-4e41-9195-ff5d315a6c2d" />
+<img width="1920" height="927" alt="image" src="https://github.com/user-attachments/assets/17bfe92f-71d4-4d46-85bc-c343449cb82d" />
+
 
 *Live active user roster pulling dynamic profile pictures from GitHub/Google integrations.*
 
